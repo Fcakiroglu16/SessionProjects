@@ -1,0 +1,14 @@
+@Microservice1.API_HostAddress = http://localhost:5296
+
+### Microservice2'den ürünleri getir (HTTP)
+GET {{Microservice1.API_HostAddress}}/api/products
+Accept: application/json
+
+### Sipariş oluştur -> OrderCreatedEvent RabbitMQ'ya publish edilir
+POST {{Microservice1.API_HostAddress}}/api/orders
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "quantity": 3
+}

@@ -1,1 +1,13 @@
-<Solution />
+<Solution>
+  <Folder Name="/Aspire/">
+    <Project Path="SessionProjects.AppHost/SessionProjects.AppHost.csproj" />
+    <Project Path="SessionProjects.ServiceDefaults/SessionProjects.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/Microservices/">
+    <Project Path="Microservice1.API/Microservice1.API.csproj" />
+    <Project Path="Microservice2.API/Microservice2.API.csproj" />
+  </Folder>
+  <Folder Name="/Shared/">
+    <Project Path="SessionProjects.Contracts/SessionProjects.Contracts.csproj" />
+  </Folder>
+</Solution>
