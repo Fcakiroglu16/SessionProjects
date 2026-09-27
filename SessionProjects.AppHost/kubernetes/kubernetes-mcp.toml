@@ -1,0 +1,14 @@
+# kubernetes-mcp-server ayarları (https://github.com/containers/kubernetes-mcp-server/blob/main/docs/configuration.md)
+# Host'taki ~/.kube/config kullanılır; agent docker-desktop context'ine bağlanır.
+port = "54615"
+stateless = true
+
+# Agent sadece okuma yapar: cluster'da hiçbir şey oluşturamaz, silemez, güncelleyemez
+read_only = true
+toolsets = ["core", "config", "helm"]
+
+# Secret içerikleri LLM'e gönderilmesin
+[[denied_resources]]
+group = ""
+version = "v1"
+kind = "Secret"

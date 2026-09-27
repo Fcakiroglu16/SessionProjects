@@ -1,11 +1,11 @@
 using Microsoft.Extensions.AI;
 using ModelContextProtocol.Client;
 
-namespace ObservabilityAgent;
+namespace SessionProjects.Agents.Common;
 
 public record McpServerConfig(string Name, string? Url, Dictionary<string, string>? Headers = null);
 
-// SigNoz / Grafana / Prometheus MCP server'larına bağlanır ve araçlarını agent'a verilecek AITool listesine çevirir.
+// Verilen MCP server'larına (HTTP) bağlanır ve araçlarını agent'a verilecek AITool listesine çevirir.
 public sealed class McpToolProvider : IAsyncDisposable
 {
     // OpenAI tek istekte en fazla 128 araç kabul ediyor

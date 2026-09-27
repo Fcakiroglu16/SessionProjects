@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/Agents/">
+    <Project Path="KubernetesAgent/KubernetesAgent.csproj" />
     <Project Path="ObservabilityAgent/ObservabilityAgent.csproj" />
+    <Project Path="SessionProjects.Agents.Common/SessionProjects.Agents.Common.csproj" />
   </Folder>
   <Folder Name="/Aspire/">
     <Project Path="SessionProjects.AppHost/SessionProjects.AppHost.csproj" />

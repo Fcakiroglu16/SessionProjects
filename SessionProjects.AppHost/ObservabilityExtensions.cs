@@ -108,8 +108,8 @@ public static class ObservabilityExtensions
     }
 
     // MCP server'ın streamable-http adresini (".../mcp") verilen ortam değişkeniyle projeye geçirir.
-    public static IResourceBuilder<ProjectResource> WithMcpServer(this IResourceBuilder<ProjectResource> project,
-        string environmentVariable, IResourceBuilder<ContainerResource> mcpServer)
+    public static IResourceBuilder<ProjectResource> WithMcpServer<T>(this IResourceBuilder<ProjectResource> project,
+        string environmentVariable, IResourceBuilder<T> mcpServer) where T : class, IResourceWithEndpoints, IResourceWithWaitSupport
     {
         var endpoint = mcpServer.GetEndpoint("http");
         return project

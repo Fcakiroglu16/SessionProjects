@@ -1,10 +1,10 @@
 using Azure.AI.AgentServer.Core;
+using KubernetesAgent;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Foundry.Hosting;
 using Microsoft.Extensions.AI;
-using ObservabilityAgent;
-using SessionProjects.Agents.Common;
 using OpenAI;
+using SessionProjects.Agents.Common;
 
 var apiKey = Environment.GetEnvironmentVariable("OPEN_AI_KEY");
 if (string.IsNullOrWhiteSpace(apiKey))
@@ -12,14 +12,10 @@ if (string.IsNullOrWhiteSpace(apiKey))
 
 var model = Environment.GetEnvironmentVariable("OPENAI_MODEL") ?? "gpt-4o";
 
-// MCP adresleri Aspire AppHost tarafından ortam değişkeni olarak verilir
-var signozApiKey = Environment.GetEnvironmentVariable("SIGNOZ_API_KEY");
+// MCP adresi Aspire AppHost tarafından ortam değişkeni olarak verilir
 McpServerConfig[] mcpServers =
 [
-    new("SigNoz", Environment.GetEnvironmentVariable("SIGNOZ_MCP_URL"),
-        string.IsNullOrWhiteSpace(signozApiKey) ? null : new() { ["SIGNOZ-API-KEY"] = signozApiKey }),
-    new("Grafana", Environment.GetEnvironmentVariable("GRAFANA_MCP_URL")),
-    new("Prometheus", Environment.GetEnvironmentVariable("PROMETHEUS_MCP_URL"))
+    new("Kubernetes", Environment.GetEnvironmentVariable("KUBERNETES_MCP_URL"))
 ];
 
 await using var mcpTools = await McpToolProvider.CreateAsync(mcpServers);
@@ -34,8 +30,8 @@ var chatClient = new OpenAIClient(apiKey)
 
 var agent = chatClient.AsAIAgent(
     instructions: AgentInstructions.Build(mcpTools.ConnectedServers, mcpTools.FailedServers),
-    name: "observability-agent",
-    description: "SigNoz, Grafana ve Prometheus MCP'lerini kullanarak sistemde sorun olup olmadığını analiz eder.",
+    name: "kubernetes-agent",
+    description: "Docker Desktop üzerindeki local Kubernetes cluster'ını Kubernetes MCP ile inceleyip sorun olup olmadığını analiz eder.",
     tools: mcpTools.Tools);
 
 var builder = AgentHost.CreateBuilder(args);

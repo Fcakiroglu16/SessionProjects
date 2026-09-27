@@ -15,7 +15,12 @@
         <PackageReference Include="Microsoft.Agents.AI.Foundry.Hosting" Version="1.10.0-preview.260610.1" />
         <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.17.0" />
         <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.17.0" />
-        <PackageReference Include="ModelContextProtocol.Core" Version="2.2.0" />
+    </ItemGroup>
+
+
+
+    <ItemGroup>
+      <ProjectReference Include="..\SessionProjects.Agents.Common\SessionProjects.Agents.Common.csproj" />
     </ItemGroup>
 
 

@@ -34,4 +34,12 @@ builder.AddProject<Projects.ObservabilityAgent>("observability-agent")
     .WithMcpServer("PROMETHEUS_MCP_URL", observability.PrometheusMcp)
     .WithOtelCollector(otelCollector);
 
+var kubernetesMcp = builder.AddKubernetesMcp();
+
+builder.AddProject<Projects.KubernetesAgent>("kubernetes-agent")
+    .WithHttpEndpoint(port: 8089, env: "PORT")
+    .WithEnvironment("OPEN_AI_KEY", openAiApiKey)
+    .WithMcpServer("KUBERNETES_MCP_URL", kubernetesMcp)
+    .WithOtelCollector(otelCollector);
+
 builder.Build().Run();
