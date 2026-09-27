@@ -12,6 +12,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Microservice1.API\Microservice1.API.csproj" />
       <ProjectReference Include="..\Microservice2.API\Microservice2.API.csproj" />
+      <ProjectReference Include="..\ObservabilityAgent\ObservabilityAgent.csproj" />
     </ItemGroup>
 
     <ItemGroup>

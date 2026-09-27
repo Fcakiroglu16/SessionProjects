@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Agents/">
+    <Project Path="ObservabilityAgent/ObservabilityAgent.csproj" />
+  </Folder>
   <Folder Name="/Aspire/">
     <Project Path="SessionProjects.AppHost/SessionProjects.AppHost.csproj" />
     <Project Path="SessionProjects.ServiceDefaults/SessionProjects.ServiceDefaults.csproj" />

@@ -1,5 +1,32 @@
+# Build çıktıları
 bin/
 obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+
+# IDE / kullanıcıya özel dosyalar
+.idea/
+.vs/
+.vscode/
+*.user
+*.suo
+*.DotSettings.user
+
+# İşletim sistemi
+.DS_Store
+Thumbs.db
+
+# Ortam değişkenleri / gizli bilgiler (secret'lar user-secrets'ta tutulur)
+.env
+.env.*
+*.pfx
+
+# Claude Code / ruflo çalışma dosyaları (her klasörde oluşabiliyor)
+.claude-flow/
+.swarm/
+ruvector.db
+.claude/settings.local.json
+
+# Aspire yerel durum dosyaları
+.aspire/
