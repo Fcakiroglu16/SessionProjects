@@ -1,0 +1,59 @@
+# Müşteri talebi özetleme agent'ı: talebi sipariş/kargo/stok/politika bilgisiyle özetler, uygun aksiyonu önerir.
+# Salt okunur; hiçbir servise yazmaz. Dışarıya açık (LoadBalancer :8091).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: case-summary-agent
+  namespace: sessionprojects-agents
+  labels:
+    app: case-summary-agent
+    app.kubernetes.io/part-of: sessionprojects
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: case-summary-agent }
+  template:
+    metadata:
+      labels:
+        app: case-summary-agent
+        app.kubernetes.io/part-of: sessionprojects
+    spec:
+      containers:
+        - name: case-summary-agent
+          image: casesummary.agent:latest
+          # Aynı :latest tag'iyle yeniden build edilince node'daki eski kopya yerine yenisi alınır
+          imagePullPolicy: Always
+          ports:
+            - { name: http, containerPort: 8091 }
+          env:
+            - name: OPEN_AI_KEY
+              valueFrom:
+                secretKeyRef: { name: openai-api-key, key: api-key }
+            - { name: PORT, value: "8091" }
+            # Maliyet için küçük model (varsayılan gpt-4o)
+            - { name: OPENAI_MODEL, value: gpt-4o-mini }
+            - { name: OTEL_SERVICE_NAME, value: case-summary-agent }
+            - { name: OTEL_EXPORTER_OTLP_ENDPOINT, value: "http://otel-collector.observability.svc.cluster.local:4317" }
+            - { name: OTEL_EXPORTER_OTLP_PROTOCOL, value: grpc }
+            # Sipariş/müşteri (microservice1) ve ürün/stok (microservice2) servisleri
+            - { name: ORDER_SERVICE_URL, value: "http://microservice1-api.sessionprojects.svc.cluster.local:8080" }
+            - { name: PRODUCT_SERVICE_URL, value: "http://microservice2-api.sessionprojects.svc.cluster.local:8080" }
+          readinessProbe:
+            httpGet: { path: /readiness, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 512Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: case-summary-agent
+  namespace: sessionprojects-agents
+  labels: { app: case-summary-agent }
+spec:
+  type: LoadBalancer
+  selector: { app: case-summary-agent }
+  ports:
+    - { name: http, port: 8091, targetPort: http }

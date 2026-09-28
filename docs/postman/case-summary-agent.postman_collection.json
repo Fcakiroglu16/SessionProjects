@@ -1,0 +1,250 @@
+{
+  "info": {
+    "name": "Case Summary Agent - Müşteri Talebi Senaryoları",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Müşteri talebini özetleyip uygun aksiyonu öneren agent (Microsoft Agent Framework). Agent salt okunurdur; hiçbir aksiyonu uygulamaz."
+  },
+  "variable": [
+    {
+      "key": "caseSummaryUrl",
+      "value": "http://localhost:8091"
+    }
+  ],
+  "item": [
+    {
+      "name": "1 - Bilgi talebi (siparişim nerede?)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const body = pm.response.json();",
+              "const calls = (body.output || []).filter(o => o.type === 'function_call').map(o => o.name);",
+              "console.log('Araç/skill çağrıları:', calls.join(' → '));",
+              "const msg = (body.output || []).find(o => o.type === 'message');",
+              "if (msg) console.log(msg.content[0].text);",
+              "pm.test('Cevap üretildi', () => pm.expect(msg).to.exist);",
+              "pm.test('Politika skill yüklendi', () => pm.expect(calls).to.include('load_skill'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{caseSummaryUrl}}/responses",
+          "host": [
+            "{{caseSummaryUrl}}"
+          ],
+          "path": [
+            "responses"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"input\": \"Müşteri: C-1001, Sipariş: ORD-1001. Mesaj: Merhaba, siparişim nerede? Ne zaman gelir?\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "2 - Hasarlı ürün, stok var",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const body = pm.response.json();",
+              "const calls = (body.output || []).filter(o => o.type === 'function_call').map(o => o.name);",
+              "console.log('Araç/skill çağrıları:', calls.join(' → '));",
+              "const msg = (body.output || []).find(o => o.type === 'message');",
+              "if (msg) console.log(msg.content[0].text);",
+              "pm.test('Cevap üretildi', () => pm.expect(msg).to.exist);",
+              "pm.test('Politika skill yüklendi', () => pm.expect(calls).to.include('load_skill'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{caseSummaryUrl}}/responses",
+          "host": [
+            "{{caseSummaryUrl}}"
+          ],
+          "path": [
+            "responses"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"input\": \"Müşteri: C-1002, Sipariş: ORD-1002. Mesaj: Aldığım kalemlerden bazıları kırık geldi, yenisini istiyorum.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "3 - Hasarlı ürün, stok yok",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const body = pm.response.json();",
+              "const calls = (body.output || []).filter(o => o.type === 'function_call').map(o => o.name);",
+              "console.log('Araç/skill çağrıları:', calls.join(' → '));",
+              "const msg = (body.output || []).find(o => o.type === 'message');",
+              "if (msg) console.log(msg.content[0].text);",
+              "pm.test('Cevap üretildi', () => pm.expect(msg).to.exist);",
+              "pm.test('Politika skill yüklendi', () => pm.expect(calls).to.include('load_skill'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{caseSummaryUrl}}/responses",
+          "host": [
+            "{{caseSummaryUrl}}"
+          ],
+          "path": [
+            "responses"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"input\": \"Müşteri: C-1003, Sipariş: ORD-1003. Mesaj: Deri ajandanın kapağı yırtık geldi, hasarlı ürün gönderilmiş.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "4 - Süre dışı iade, yüksek tutar",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const body = pm.response.json();",
+              "const calls = (body.output || []).filter(o => o.type === 'function_call').map(o => o.name);",
+              "console.log('Araç/skill çağrıları:', calls.join(' → '));",
+              "const msg = (body.output || []).find(o => o.type === 'message');",
+              "if (msg) console.log(msg.content[0].text);",
+              "pm.test('Cevap üretildi', () => pm.expect(msg).to.exist);",
+              "pm.test('Politika skill yüklendi', () => pm.expect(calls).to.include('load_skill'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{caseSummaryUrl}}/responses",
+          "host": [
+            "{{caseSummaryUrl}}"
+          ],
+          "path": [
+            "responses"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"input\": \"Müşteri: C-1004, Sipariş: ORD-1004. Mesaj: Dolma kalemi beğenmedim, iade etmek istiyorum.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "5 - Hukuki tehdit + kargo gecikmesi",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const body = pm.response.json();",
+              "const calls = (body.output || []).filter(o => o.type === 'function_call').map(o => o.name);",
+              "console.log('Araç/skill çağrıları:', calls.join(' → '));",
+              "const msg = (body.output || []).find(o => o.type === 'message');",
+              "if (msg) console.log(msg.content[0].text);",
+              "pm.test('Cevap üretildi', () => pm.expect(msg).to.exist);",
+              "pm.test('Politika skill yüklendi', () => pm.expect(calls).to.include('load_skill'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{caseSummaryUrl}}/responses",
+          "host": [
+            "{{caseSummaryUrl}}"
+          ],
+          "path": [
+            "responses"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"input\": \"Müşteri: C-1005, Sipariş: ORD-1005. Mesaj: Bu üçüncü kez oluyor! Siparişim hâlâ gelmedi, avukatıma gideceğim.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

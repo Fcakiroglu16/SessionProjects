@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/Agents/">
+    <Project Path="CaseSummaryAgent.Tests/CaseSummaryAgent.Tests.csproj" />
+    <Project Path="CaseSummaryAgent/CaseSummaryAgent.csproj" />
     <Project Path="KubernetesAgent/KubernetesAgent.csproj" />
     <Project Path="ObservabilityAgent/ObservabilityAgent.csproj" />
     <Project Path="SessionProjects.Agents.Common/SessionProjects.Agents.Common.csproj" />

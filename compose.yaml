@@ -28,3 +28,9 @@
     build:
       context: .
       dockerfile: SreAdvisorAgent/Dockerfile
+
+  casesummary.agent:
+    image: casesummary.agent
+    build:
+      context: .
+      dockerfile: CaseSummaryAgent/Dockerfile

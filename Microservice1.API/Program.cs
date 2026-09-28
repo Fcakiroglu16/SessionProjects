@@ -1,4 +1,5 @@
 using Microservice1.API.Messaging;
+using Microservice1.API.Orders;
 using SessionProjects.Contracts;
 using SessionProjects.Contracts.Dtos;
 using SessionProjects.Contracts.Events;
@@ -12,6 +13,7 @@ builder.AddRabbitMQClient(RabbitMqConstants.ConnectionName);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSingleton<RabbitMqPublisher>();
+builder.Services.AddSingleton<OrderRepository>();
 
 // Aspire service discovery: "microservice2-api" AppHost'taki resource adı
 builder.Services.AddHttpClient("microservice2",
@@ -49,6 +51,19 @@ app.MapPost("/api/orders", async (CreateOrderRequest request, RabbitMqPublisher 
         return Results.Accepted(value: @event);
     })
     .WithName("CreateOrder");
+
+// Sipariş geçmişi ve kargo durumu (müşteri talebi agent'ı bu endpoint'leri salt okunur kullanır)
+app.MapGet("/api/orders/{orderId}", (string orderId, OrderRepository repository) =>
+        repository.GetOrder(orderId) is { } order ? Results.Ok(order) : Results.NotFound())
+    .WithName("GetOrder");
+
+app.MapGet("/api/customers/{customerId}", (string customerId, OrderRepository repository) =>
+        repository.GetCustomer(customerId) is { } customer ? Results.Ok(customer) : Results.NotFound())
+    .WithName("GetCustomer");
+
+app.MapGet("/api/customers/{customerId}/orders", (string customerId, OrderRepository repository) =>
+        Results.Ok(repository.GetCustomerOrders(customerId)))
+    .WithName("GetCustomerOrders");
 
 app.Run();
 

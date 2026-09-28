@@ -10,7 +10,9 @@ public class ProductRepository
     {
         [1] = new(1, "Kalem", 25.50m, 100),
         [2] = new(2, "Defter", 60m, 50),
-        [3] = new(3, "Silgi", 10m, 200)
+        [3] = new(3, "Silgi", 10m, 200),
+        [4] = new(4, "Deri Ajanda", 450m, 0),
+        [5] = new(5, "Dolma Kalem", 2000m, 5)
     });
 
     public IReadOnlyList<ProductDto> GetAll() => _products.Values.OrderBy(p => p.Id).ToList();
