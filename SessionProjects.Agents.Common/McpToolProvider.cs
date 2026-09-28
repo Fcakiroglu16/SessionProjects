@@ -15,6 +15,9 @@ public sealed class McpToolProvider : IAsyncDisposable
     private static readonly string[] WriteToolPrefixes =
         ["create_", "update_", "delete_", "add_", "remove_", "patch_", "put_", "post_", "set_", "upsert_"];
 
+    private const int ConnectAttempts = 24;
+    private static readonly TimeSpan ConnectRetryDelay = TimeSpan.FromSeconds(5);
+
     private readonly List<McpClient> _clients = [];
 
     public List<AITool> Tools { get; } = [];
@@ -38,16 +41,7 @@ public sealed class McpToolProvider : IAsyncDisposable
 
             try
             {
-                var transport = new HttpClientTransport(new HttpClientTransportOptions
-                {
-                    Name = server.Name,
-                    Endpoint = new Uri(server.Url),
-                    TransportMode = HttpTransportMode.StreamableHttp,
-                    AdditionalHeaders = server.Headers
-                });
-
-                var client = await McpClient.CreateAsync(transport, cancellationToken: cancellationToken);
-                var tools = await client.ListToolsAsync(cancellationToken: cancellationToken);
+                var (client, tools) = await ConnectWithRetryAsync(server, cancellationToken);
 
                 provider._clients.Add(client);
                 provider.ConnectedServers.Add(server.Name);
@@ -65,6 +59,35 @@ public sealed class McpToolProvider : IAsyncDisposable
             provider.Tools.RemoveRange(MaxToolCount, provider.Tools.Count - MaxToolCount);
 
         return provider;
+    }
+
+    // Kubernetes'te pod'ların başlama sırası garanti değil: MCP server henüz ayakta değilse (bağlantı reddedildi,
+    // DNS henüz çözülmüyor vb.) bir süre tekrar dener. Yetki (401) gibi HTTP hatalarında tekrar denemez.
+    private static async Task<(McpClient Client, IList<McpClientTool> Tools)> ConnectWithRetryAsync(
+        McpServerConfig server, CancellationToken cancellationToken)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                var transport = new HttpClientTransport(new HttpClientTransportOptions
+                {
+                    Name = server.Name,
+                    Endpoint = new Uri(server.Url!),
+                    TransportMode = HttpTransportMode.StreamableHttp,
+                    AdditionalHeaders = server.Headers
+                });
+
+                var client = await McpClient.CreateAsync(transport, cancellationToken: cancellationToken);
+                var tools = await client.ListToolsAsync(cancellationToken: cancellationToken);
+                return (client, tools);
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode is null && attempt < ConnectAttempts)
+            {
+                Console.WriteLine($"MCP {server.Name} henüz hazır değil ({ex.Message}), {attempt}/{ConnectAttempts}. deneme");
+                await Task.Delay(ConnectRetryDelay, cancellationToken);
+            }
+        }
     }
 
     // Farklı MCP server'larda aynı isimli araçlar olabilir (ör. list_metrics); modelin hangi kaynağı

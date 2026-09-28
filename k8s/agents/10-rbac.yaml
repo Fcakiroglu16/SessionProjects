@@ -1,0 +1,69 @@
+# Kubernetes MCP ve KubernetesAgent'ın yetkileri. Secret okuma yetkisi YOK.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kubernetes-mcp
+  namespace: sessionprojects-agents
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kubernetes-agent
+  namespace: sessionprojects-agents
+---
+# Cluster genelinde salt okuma: pod/log/event/node/workload + metrics-server
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sessionprojects-cluster-reader
+rules:
+  - apiGroups: [""]
+    resources: [pods, pods/log, events, nodes, namespaces, services, endpoints, configmaps, persistentvolumeclaims]
+    verbs: [get, list, watch]
+  - apiGroups: [apps]
+    resources: [deployments, replicasets, statefulsets, daemonsets]
+    verbs: [get, list, watch]
+  - apiGroups: [batch]
+    resources: [jobs, cronjobs]
+    verbs: [get, list, watch]
+  - apiGroups: [events.k8s.io]
+    resources: [events]
+    verbs: [get, list, watch]
+  - apiGroups: [metrics.k8s.io]
+    resources: [pods, nodes]
+    verbs: [get, list]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sessionprojects-cluster-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: sessionprojects-cluster-reader
+subjects:
+  - { kind: ServiceAccount, name: kubernetes-mcp, namespace: sessionprojects-agents }
+  - { kind: ServiceAccount, name: kubernetes-agent, namespace: sessionprojects-agents }
+---
+# KubernetesAgent'ın TEK yazma yetkisi: sessionprojects namespace'inde deployment restart (patch)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: deployment-restarter
+  namespace: sessionprojects
+rules:
+  - apiGroups: [apps]
+    resources: [deployments]
+    verbs: [get, patch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubernetes-agent-deployment-restarter
+  namespace: sessionprojects
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: deployment-restarter
+subjects:
+  - { kind: ServiceAccount, name: kubernetes-agent, namespace: sessionprojects-agents }

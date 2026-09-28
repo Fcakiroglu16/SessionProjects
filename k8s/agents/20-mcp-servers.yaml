@@ -1,0 +1,219 @@
+# Agent'ların kullandığı MCP server'ları (cluster içinde, sadece ClusterIP)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: signoz-mcp
+  namespace: sessionprojects-agents
+  labels:
+    app: signoz-mcp
+    app.kubernetes.io/part-of: sessionprojects
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: signoz-mcp }
+  template:
+    metadata:
+      labels:
+        app: signoz-mcp
+        app.kubernetes.io/part-of: sessionprojects
+    spec:
+      containers:
+        - name: signoz-mcp
+          image: signoz/signoz-mcp-server:v0.15.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - { name: http, containerPort: 8000 }
+          env:
+            - { name: SIGNOZ_URL, value: "http://signoz.observability.svc.cluster.local:8080" }
+            - { name: TRANSPORT_MODE, value: http }
+            - { name: MCP_SERVER_PORT, value: "8000" }
+            - { name: SIGNOZ_DOCS_REFRESH_INTERVAL, value: "0" }
+            - { name: SIGNOZ_DOCS_FULL_REFRESH_INTERVAL, value: "0" }
+          readinessProbe:
+            httpGet: { path: /livez, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { memory: 512Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: signoz-mcp
+  namespace: sessionprojects-agents
+  labels: { app: signoz-mcp }
+spec:
+  type: ClusterIP
+  selector: { app: signoz-mcp }
+  ports:
+    - { name: http, port: 8000, targetPort: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-mcp
+  namespace: sessionprojects-agents
+  labels:
+    app: grafana-mcp
+    app.kubernetes.io/part-of: sessionprojects
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: grafana-mcp }
+  template:
+    metadata:
+      labels:
+        app: grafana-mcp
+        app.kubernetes.io/part-of: sessionprojects
+    spec:
+      containers:
+        - name: grafana-mcp
+          image: grafana/mcp-grafana:1.6.0
+          imagePullPolicy: IfNotPresent
+          args: ["-t", "streamable-http", "--address", "0.0.0.0:8000", "--allowed-hosts", "grafana-mcp:8000,grafana-mcp.sessionprojects-agents:8000,grafana-mcp.sessionprojects-agents.svc.cluster.local:8000,localhost:8000",
+                 "--disable-write", "--disable-incident", "--disable-oncall", "--disable-sift", "--disable-admin",
+                 "--disable-pyroscope", "--disable-loki", "--disable-elasticsearch", "--disable-asserts"]
+          ports:
+            - { name: http, containerPort: 8000 }
+          env:
+            - { name: GRAFANA_URL, value: "http://kube-prometheus-stack-grafana.observability.svc.cluster.local" }
+          readinessProbe:
+            tcpSocket: { port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { memory: 256Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-mcp
+  namespace: sessionprojects-agents
+  labels: { app: grafana-mcp }
+spec:
+  type: ClusterIP
+  selector: { app: grafana-mcp }
+  ports:
+    - { name: http, port: 8000, targetPort: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-mcp
+  namespace: sessionprojects-agents
+  labels:
+    app: prometheus-mcp
+    app.kubernetes.io/part-of: sessionprojects
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: prometheus-mcp }
+  template:
+    metadata:
+      labels:
+        app: prometheus-mcp
+        app.kubernetes.io/part-of: sessionprojects
+    spec:
+      containers:
+        - name: prometheus-mcp
+          image: ghcr.io/pab1it0/prometheus-mcp-server:1.6.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - { name: http, containerPort: 8080 }
+          env:
+            - { name: PROMETHEUS_URL, value: "http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090" }
+            - { name: PROMETHEUS_MCP_SERVER_TRANSPORT, value: http }
+            - { name: PROMETHEUS_MCP_BIND_HOST, value: "0.0.0.0" }
+            - { name: PROMETHEUS_MCP_BIND_PORT, value: "8080" }
+          readinessProbe:
+            tcpSocket: { port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { memory: 256Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-mcp
+  namespace: sessionprojects-agents
+  labels: { app: prometheus-mcp }
+spec:
+  type: ClusterIP
+  selector: { app: prometheus-mcp }
+  ports:
+    - { name: http, port: 8080, targetPort: http }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubernetes-mcp-config
+  namespace: sessionprojects-agents
+data:
+  config.toml: |
+    # Cluster içinde pod'un ServiceAccount'u kullanılır (yetkiler 10-rbac.yaml'da)
+    port = "8080"
+    stateless = true
+    cluster_provider_strategy = "in-cluster"
+    read_only = true
+    toolsets = ["core"]
+
+    [[denied_resources]]
+    group = ""
+    version = "v1"
+    kind = "Secret"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernetes-mcp
+  namespace: sessionprojects-agents
+  labels:
+    app: kubernetes-mcp
+    app.kubernetes.io/part-of: sessionprojects
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: kubernetes-mcp }
+  template:
+    metadata:
+      labels:
+        app: kubernetes-mcp
+        app.kubernetes.io/part-of: sessionprojects
+    spec:
+      serviceAccountName: kubernetes-mcp
+      containers:
+        - name: kubernetes-mcp
+          image: quay.io/containers/kubernetes_mcp_server:v0.0.67
+          imagePullPolicy: IfNotPresent
+          args: ["--config", "/etc/kubernetes-mcp-server/config.toml"]
+          ports:
+            - { name: http, containerPort: 8080 }
+          volumeMounts:
+            - { name: config, mountPath: /etc/kubernetes-mcp-server }
+          readinessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { memory: 256Mi }
+      volumes:
+        - name: config
+          configMap: { name: kubernetes-mcp-config }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubernetes-mcp
+  namespace: sessionprojects-agents
+  labels: { app: kubernetes-mcp }
+spec:
+  type: ClusterIP
+  selector: { app: kubernetes-mcp }
+  ports:
+    - { name: http, port: 8080, targetPort: http }

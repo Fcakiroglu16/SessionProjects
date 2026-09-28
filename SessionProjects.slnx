@@ -16,4 +16,7 @@
   <Folder Name="/Shared/">
     <Project Path="SessionProjects.Contracts/SessionProjects.Contracts.csproj" />
   </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="compose.yaml" />
+  </Folder>
 </Solution>

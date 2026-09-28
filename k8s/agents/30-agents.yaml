@@ -1,0 +1,173 @@
+# Agent'lar (Microsoft Agent Framework). SreAdvisor dışarıya açık (LoadBalancer :8090)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: observability-agent
+  namespace: sessionprojects-agents
+  labels:
+    app: observability-agent
+    app.kubernetes.io/part-of: sessionprojects
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: observability-agent }
+  template:
+    metadata:
+      labels:
+        app: observability-agent
+        app.kubernetes.io/part-of: sessionprojects
+    spec:
+      containers:
+        - name: observability-agent
+          image: observability.agent:latest
+          imagePullPolicy: Always
+          ports:
+            - { name: http, containerPort: 8088 }
+          env:
+            - name: OPEN_AI_KEY
+              valueFrom:
+                secretKeyRef: { name: openai-api-key, key: api-key }
+            - { name: OTEL_EXPORTER_OTLP_ENDPOINT, value: "http://otel-collector.observability.svc.cluster.local:4317" }
+            - { name: OTEL_EXPORTER_OTLP_PROTOCOL, value: grpc }
+            - { name: PORT, value: "8088" }
+            - { name: OTEL_SERVICE_NAME, value: observability-agent }
+            - { name: A2A_PUBLIC_URL, value: "http://observability-agent.sessionprojects-agents.svc.cluster.local:8088" }
+            - { name: SIGNOZ_MCP_URL, value: "http://signoz-mcp:8000/mcp" }
+            - { name: GRAFANA_MCP_URL, value: "http://grafana-mcp:8000/mcp" }
+            - { name: PROMETHEUS_MCP_URL, value: "http://prometheus-mcp:8080/mcp" }
+            # observability_service_summary aracı Prometheus'u doğrudan sorgular
+            - { name: PROMETHEUS_URL, value: "http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090" }
+            # SigNoz UI > Settings > API Keys ile alınan key (opsiyonel; yoksa SigNoz MCP atlanır)
+            - name: SIGNOZ_API_KEY
+              valueFrom:
+                secretKeyRef: { name: signoz-api-key, key: api-key, optional: true }
+          readinessProbe:
+            httpGet: { path: /readiness, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 512Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: observability-agent
+  namespace: sessionprojects-agents
+  labels: { app: observability-agent }
+spec:
+  type: ClusterIP
+  selector: { app: observability-agent }
+  ports:
+    - { name: http, port: 8088, targetPort: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernetes-agent
+  namespace: sessionprojects-agents
+  labels:
+    app: kubernetes-agent
+    app.kubernetes.io/part-of: sessionprojects
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: kubernetes-agent }
+  template:
+    metadata:
+      labels:
+        app: kubernetes-agent
+        app.kubernetes.io/part-of: sessionprojects
+    spec:
+      serviceAccountName: kubernetes-agent
+      containers:
+        - name: kubernetes-agent
+          image: kubernetes.agent:latest
+          imagePullPolicy: Always
+          ports:
+            - { name: http, containerPort: 8089 }
+          env:
+            - name: OPEN_AI_KEY
+              valueFrom:
+                secretKeyRef: { name: openai-api-key, key: api-key }
+            - { name: OTEL_EXPORTER_OTLP_ENDPOINT, value: "http://otel-collector.observability.svc.cluster.local:4317" }
+            - { name: OTEL_EXPORTER_OTLP_PROTOCOL, value: grpc }
+            - { name: PORT, value: "8089" }
+            - { name: OTEL_SERVICE_NAME, value: kubernetes-agent }
+            - { name: A2A_PUBLIC_URL, value: "http://kubernetes-agent.sessionprojects-agents.svc.cluster.local:8089" }
+            - { name: KUBERNETES_MCP_URL, value: "http://kubernetes-mcp:8080/mcp" }
+          readinessProbe:
+            httpGet: { path: /readiness, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 512Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubernetes-agent
+  namespace: sessionprojects-agents
+  labels: { app: kubernetes-agent }
+spec:
+  type: ClusterIP
+  selector: { app: kubernetes-agent }
+  ports:
+    - { name: http, port: 8089, targetPort: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sre-advisor-agent
+  namespace: sessionprojects-agents
+  labels:
+    app: sre-advisor-agent
+    app.kubernetes.io/part-of: sessionprojects
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: sre-advisor-agent }
+  template:
+    metadata:
+      labels:
+        app: sre-advisor-agent
+        app.kubernetes.io/part-of: sessionprojects
+    spec:
+      containers:
+        - name: sre-advisor-agent
+          image: sreadvisor.agent:latest
+          imagePullPolicy: Always
+          ports:
+            - { name: http, containerPort: 8090 }
+          env:
+            - name: OPEN_AI_KEY
+              valueFrom:
+                secretKeyRef: { name: openai-api-key, key: api-key }
+            - { name: OTEL_EXPORTER_OTLP_ENDPOINT, value: "http://otel-collector.observability.svc.cluster.local:4317" }
+            - { name: OTEL_EXPORTER_OTLP_PROTOCOL, value: grpc }
+            - { name: PORT, value: "8090" }
+            - { name: OTEL_SERVICE_NAME, value: sre-advisor-agent }
+            # Aspire service discovery ile aynı değişken adları (A2A agent card'ları buradan çözülür)
+            - { name: services__observability-agent__http__0, value: "http://observability-agent:8088" }
+            - { name: services__kubernetes-agent__http__0, value: "http://kubernetes-agent:8089" }
+          readinessProbe:
+            httpGet: { path: /readiness, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 512Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sre-advisor-agent
+  namespace: sessionprojects-agents
+  labels: { app: sre-advisor-agent }
+spec:
+  type: LoadBalancer
+  selector: { app: sre-advisor-agent }
+  ports:
+    - { name: http, port: 8090, targetPort: http }

@@ -1,0 +1,5 @@
+# SigNoz Helm chart (signoz/signoz) - Docker Desktop için küçültülmüş ayarlar
+#   helm upgrade --install signoz signoz/signoz -n observability -f signoz-values.yaml
+clickhouse:
+  persistence:
+    size: 10Gi

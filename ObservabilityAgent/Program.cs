@@ -36,7 +36,9 @@ var agent = chatClient.AsAIAgent(
     instructions: AgentInstructions.Build(mcpTools.ConnectedServers, mcpTools.FailedServers),
     name: "observability-agent",
     description: "SigNoz, Grafana ve Prometheus MCP'lerini kullanarak sistemde sorun olup olmadığını analiz eder.",
-    tools: mcpTools.Tools);
+    tools: ServiceSummaryTool.CreateFromEnvironment() is { } summaryTool
+        ? [summaryTool.AsAIFunction(), .. mcpTools.Tools]
+        : mcpTools.Tools);
 
 // A2A: orkestratör (SreAdvisorAgent) bu agent'ı agent card üzerinden keşfedip araç olarak kullanır
 var agentCard = A2AHostingExtensions.CreateAgentCard(agent, new A2A.AgentSkill

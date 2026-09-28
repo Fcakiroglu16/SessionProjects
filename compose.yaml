@@ -1,0 +1,30 @@
+﻿services:
+  microservice1.api:
+    image: microservice1.api
+    build:
+      context: .
+      dockerfile: Microservice1.API/Dockerfile
+
+  microservice2.api:
+    image: microservice2.api
+    build:
+      context: .
+      dockerfile: Microservice2.API/Dockerfile
+
+  observability.agent:
+    image: observability.agent
+    build:
+      context: .
+      dockerfile: ObservabilityAgent/Dockerfile
+
+  kubernetes.agent:
+    image: kubernetes.agent
+    build:
+      context: .
+      dockerfile: KubernetesAgent/Dockerfile
+
+  sreadvisor.agent:
+    image: sreadvisor.agent
+    build:
+      context: .
+      dockerfile: SreAdvisorAgent/Dockerfile

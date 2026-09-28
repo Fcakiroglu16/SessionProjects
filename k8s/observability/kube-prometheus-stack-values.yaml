@@ -1,0 +1,29 @@
+# kube-prometheus-stack (Prometheus + Grafana + operator) - Docker Desktop için
+#   helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack -n observability -f ...
+alertmanager:
+  enabled: false
+
+prometheus:
+  prometheusSpec:
+    # Tüm namespace'lerdeki ServiceMonitor'ları topla (ör. otel-collector)
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    retention: 2d
+    resources:
+      requests:
+        cpu: 100m
+        memory: 400Mi
+
+grafana:
+  # Sadece local geliştirme için: login olmadan admin erişimi (Grafana MCP de token'sız bağlanır)
+  grafana.ini:
+    auth.anonymous:
+      enabled: true
+      org_role: Admin
+    auth:
+      disable_login_form: true
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      searchNamespace: observability

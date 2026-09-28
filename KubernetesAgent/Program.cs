@@ -28,20 +28,11 @@ var chatClient = new OpenAIClient(apiKey)
     .GetChatClient(model)
     .AsIChatClient();
 
-var agent = new ChatClientAgent(chatClient, new ChatClientAgentOptions
-{
-    Name = "kubernetes-agent",
-    Description = "Docker Desktop üzerindeki local Kubernetes cluster'ını Kubernetes MCP ile inceleyip sorun olup olmadığını analiz eder; onaylı Deployment restart yapabilir.",
-    ChatOptions = new ChatOptions
-    {
-        Instructions = AgentInstructions.Build(mcpTools.ConnectedServers, mcpTools.FailedServers),
-        Tools = [.. mcpTools.Tools, .. KubernetesActions.CreateFromKubeConfig().AsApprovalRequiredTools()]
-    },
-    // Sohbet geçmişi agent oturumunda tutulur. Foundry hosting preview'ında, geçmiş platformdan yeniden
-    // kurulduğunda onay isteği (mcp_approval_request) farklı bir id ile yükleniyor ve onay cevabı eşleşmiyor;
-    // kendi geçmiş sağlayıcımız bu yolu devre dışı bırakır ve onay akışı çalışır.
-    ChatHistoryProvider = new InMemoryChatHistoryProvider(new InMemoryChatHistoryProviderOptions())
-});
+var agent = chatClient.AsAIAgent(
+    instructions: AgentInstructions.Build(mcpTools.ConnectedServers, mcpTools.FailedServers),
+    name: "kubernetes-agent",
+    description: "Docker Desktop üzerindeki local Kubernetes cluster'ını Kubernetes MCP ile inceleyip sorun olup olmadığını analiz eder; Deployment restart yapabilir.",
+    tools: [.. mcpTools.Tools, .. KubernetesActions.Create().AsTools()]);
 
 // A2A: orkestratör (SreAdvisorAgent) bu agent'ı agent card üzerinden keşfedip araç olarak kullanır
 var agentCard = A2AHostingExtensions.CreateAgentCard(agent, new A2A.AgentSkill

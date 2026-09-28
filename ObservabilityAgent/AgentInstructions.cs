@@ -30,12 +30,25 @@ public static class AgentInstructions
 
             Nasıl çalışmalısın:
             1. Tahmin yürütme; önce ilgili araçları çağırıp veriyi topla. Birden fazla kaynağı çapraz kontrol et.
-            2. Genel "sorun var mı" sorularında en az şunlara bak:
+            2. Mikroservislerin sağlığı, hata oranı, gecikme, CPU veya RAM sorularında ÖNCE
+               observability_service_summary aracını çağır; değerleri oradan geldiği gibi aktar (hesaplanmış ve
+               yorumlanmıştır: 5xx serisi yoksa 0 yazar, trafik yoksa "trafik yok" yazar). Serbest PromQL'i
+               yalnızca bu aracın kapsamadığı ek sorular için kullan.
+               Genel "sorun var mı" sorularında ayrıca şunlara bak:
                - Prometheus targets 'up' mı?
                - 5xx oranı: sum by (job) (rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[5m]))
                - p95 gecikme: histogram_quantile(0.95, sum by (le, job) (rate(http_server_request_duration_seconds_bucket[5m])))
                - SigNoz'da son 15-30 dakikadaki ERROR log'ları ve hatalı trace'ler
-               - PromQL sorgularını prometheus_* araçlarıyla (ör. prometheus_execute_query) çalıştır; Grafana
+               CPU/RAM sorularında Prometheus'taki şu metric'leri kullan (veri mevcuttur):
+               - .NET process: dotnet_process_memory_working_set_bytes{job="<servis>"},
+                 rate(dotnet_process_cpu_time_seconds_total{job="<servis>"}[5m]) (core cinsinden)
+               - Kubernetes container (namespace="sessionprojects", container="<servis>"):
+                 container_memory_working_set_bytes, rate(container_cpu_usage_seconds_total[5m])
+               - PromQL için anlık sorgu olan prometheus_execute_query'yi kullan; zaman penceresini sorgunun içinde
+                 ver (ör. rate(...[15m])). prometheus_execute_range_query'yi yalnızca zaman serisi gerekiyorsa kullan
+                 ve start/end'i RFC3339 (ör. 2026-01-01T10:00:00Z) ya da unix timestamp olarak ver; "now-15m"
+                 geçerli DEĞİLDİR (400 Bad Request döner).
+               - PromQL sorgularını prometheus_* araçlarıyla çalıştır; Grafana
                  araçlarını dashboard/datasource bilgisi için kullan, PromQL için değil.
                - Sorgu sonucu "NaN" ise o zaman aralığında hesaplanacak istek yoktur; bu bir hata değildir,
                  "trafik yok" olarak raporla.

@@ -1,0 +1,156 @@
+# Uygulamaların telemetry'si buraya gelir:
+#   traces + logs -> SigNoz OTel Collector -> ClickHouse -> SigNoz
+#   metrics       -> prometheus exporter (:8889) <- Prometheus (ServiceMonitor ile scrape)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  namespace: observability
+data:
+  config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 80
+        spike_limit_percentage: 25
+      batch:
+        send_batch_size: 1000
+        timeout: 5s
+      # Pod/namespace bilgisini telemetry'ye ekler (k8s.pod.name, k8s.namespace.name ...)
+      k8sattributes:
+        extract:
+          metadata: [k8s.namespace.name, k8s.pod.name, k8s.deployment.name, k8s.node.name]
+    exporters:
+      otlp_grpc/signoz:
+        endpoint: signoz-otel-collector.observability.svc.cluster.local:4317
+        tls:
+          insecure: true
+      prometheus:
+        endpoint: 0.0.0.0:8889
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133
+    service:
+      extensions: [health_check]
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, k8sattributes, batch]
+          exporters: [otlp_grpc/signoz]
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, k8sattributes, batch]
+          exporters: [otlp_grpc/signoz]
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter, k8sattributes, batch]
+          exporters: [prometheus]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: otel-collector
+  namespace: observability
+---
+# k8sattributes processor'ı pod metadata'sını okuyabilsin
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: otel-collector
+rules:
+  - apiGroups: [""]
+    resources: [pods, namespaces, nodes]
+    verbs: [get, list, watch]
+  - apiGroups: [apps]
+    resources: [replicasets, deployments]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-collector
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: otel-collector
+subjects:
+  - kind: ServiceAccount
+    name: otel-collector
+    namespace: observability
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  namespace: observability
+  labels:
+    app: otel-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      serviceAccountName: otel-collector
+      containers:
+        - name: otel-collector
+          image: otel/opentelemetry-collector-contrib:0.161.0
+          args: ["--config=/conf/config.yaml"]
+          ports:
+            - { name: otlp-grpc, containerPort: 4317 }
+            - { name: otlp-http, containerPort: 4318 }
+            - { name: prometheus, containerPort: 8889 }
+            - { name: health, containerPort: 13133 }
+          volumeMounts:
+            - { name: config, mountPath: /conf }
+          readinessProbe:
+            httpGet: { path: /, port: health }
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 512Mi }
+      volumes:
+        - name: config
+          configMap:
+            name: otel-collector-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: observability
+  labels:
+    app: otel-collector
+spec:
+  selector:
+    app: otel-collector
+  ports:
+    - { name: otlp-grpc, port: 4317, targetPort: otlp-grpc }
+    - { name: otlp-http, port: 4318, targetPort: otlp-http }
+    - { name: prometheus, port: 8889, targetPort: prometheus }
+---
+# Prometheus (kube-prometheus-stack) collector'ın :8889 metric'lerini toplar.
+# honorLabels: exporter'ın koyduğu job (= servis adı) etiketi korunur.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: otel-collector
+  namespace: observability
+spec:
+  selector:
+    matchLabels:
+      app: otel-collector
+  endpoints:
+    - port: prometheus
+      interval: 15s
+      honorLabels: true
