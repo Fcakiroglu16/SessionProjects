@@ -1,0 +1,5 @@
+[mcp_servers.grafana]
+url = "http://localhost:54613/mcp"
+
+[mcp_servers.prometheus]
+url = "http://localhost:54614/mcp"

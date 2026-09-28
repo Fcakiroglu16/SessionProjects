@@ -38,10 +38,21 @@ var agent = chatClient.AsAIAgent(
     description: "SigNoz, Grafana ve Prometheus MCP'lerini kullanarak sistemde sorun olup olmadığını analiz eder.",
     tools: mcpTools.Tools);
 
+// A2A: orkestratör (SreAdvisorAgent) bu agent'ı agent card üzerinden keşfedip araç olarak kullanır
+var agentCard = A2AHostingExtensions.CreateAgentCard(agent, new A2A.AgentSkill
+{
+    Id = "observability-health",
+    Name = "Uygulama sağlık analizi",
+    Description = "SigNoz (trace/log), Prometheus (metric) ve Grafana verisiyle mikroservislerde hata oranı, gecikme ve hata log'larını analiz eder.",
+    Tags = ["observability","signoz","prometheus","grafana"],
+    Examples = ["microservice1-api'de hata var mı?","Son 15 dakikada 5xx artışı oldu mu?"]
+});
+
 var builder = AgentHost.CreateBuilder(args);
-builder.Services.AddLocalIsolationKeyFallback();
 builder.Services.AddFoundryResponses(agent);
+builder.Services.AddA2AAgent(agent);
 builder.RegisterProtocol("responses", endpoints => endpoints.MapFoundryResponses());
+builder.RegisterProtocol("a2a", endpoints => endpoints.MapA2AAgent(agent, agentCard));
 
 var app = builder.Build();
 app.Run();

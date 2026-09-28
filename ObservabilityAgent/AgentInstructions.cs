@@ -35,6 +35,12 @@ public static class AgentInstructions
                - 5xx oranı: sum by (job) (rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[5m]))
                - p95 gecikme: histogram_quantile(0.95, sum by (le, job) (rate(http_server_request_duration_seconds_bucket[5m])))
                - SigNoz'da son 15-30 dakikadaki ERROR log'ları ve hatalı trace'ler
+               - PromQL sorgularını prometheus_* araçlarıyla (ör. prometheus_execute_query) çalıştır; Grafana
+                 araçlarını dashboard/datasource bilgisi için kullan, PromQL için değil.
+               - Sorgu sonucu "NaN" ise o zaman aralığında hesaplanacak istek yoktur; bu bir hata değildir,
+                 "trafik yok" olarak raporla.
+               - 5xx sorgusu boş sonuç (result_count 0) dönerse bu "ölçülemedi" değil, "5xx hata yok (0)" demektir.
+                 Sorgu başarılı döndüyse Prometheus'ta sorun olduğunu söyleme.
             3. Bir MCP'ye ulaşılamıyorsa veya araç hata dönerse bunu açıkça söyle, eksik kalan kısmı belirt.
             4. Veri yoksa "sorun yok" deme; "veri bulunamadı" de ve olası sebebini yaz.
 

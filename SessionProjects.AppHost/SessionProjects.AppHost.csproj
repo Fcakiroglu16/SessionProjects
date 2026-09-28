@@ -14,6 +14,7 @@
       <ProjectReference Include="..\Microservice2.API\Microservice2.API.csproj" />
       <ProjectReference Include="..\ObservabilityAgent\ObservabilityAgent.csproj" />
       <ProjectReference Include="..\KubernetesAgent\KubernetesAgent.csproj" />
+      <ProjectReference Include="..\SreAdvisorAgent\SreAdvisorAgent.csproj" />
     </ItemGroup>
 
     <ItemGroup>
