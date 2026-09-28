@@ -46,7 +46,7 @@ public sealed class McpToolProvider : IAsyncDisposable
                 provider._clients.Add(client);
                 provider.ConnectedServers.Add(server.Name);
                 provider.Tools.AddRange(tools
-                    .Where(tool => !WriteToolPrefixes.Any(prefix => tool.Name.StartsWith(prefix)))
+                    .Where(tool => !IsWriteTool(tool.Name, server.Name) && IsSupportedSchema(tool))
                     .Select(tool => WithServerPrefix(tool, server.Name)));
             }
             catch (Exception ex)
@@ -59,6 +59,28 @@ public sealed class McpToolProvider : IAsyncDisposable
             provider.Tools.RemoveRange(MaxToolCount, provider.Tools.Count - MaxToolCount);
 
         return provider;
+    }
+
+    // Araç adı sunucu ön ekiyle gelebilir (ör. signoz_create_notification_channel); ön ek çıkarılıp kontrol edilir
+    private static bool IsWriteTool(string toolName, string serverName)
+    {
+        var prefix = serverName.ToLowerInvariant() + "_";
+        var name = toolName.StartsWith(prefix) ? toolName[prefix.Length..] : toolName;
+        return WriteToolPrefixes.Any(name.StartsWith);
+    }
+
+    // OpenAI, parametre şemasının kökünde type=object ister ve oneOf/anyOf/allOf/enum/const/not kabul etmez.
+    // Uyumsuz tek bir araç bütün isteği 400 ile düşürdüğü için bu araçlar yüklenmez.
+    private static bool IsSupportedSchema(McpClientTool tool)
+    {
+        var schema = tool.JsonSchema;
+        var supported = schema.ValueKind == System.Text.Json.JsonValueKind.Object
+                        && schema.TryGetProperty("type", out var type) && type.ValueEquals("object")
+                        && !new[] { "oneOf", "anyOf", "allOf", "enum", "const", "not" }
+                            .Any(keyword => schema.TryGetProperty(keyword, out _));
+        if (!supported)
+            Console.WriteLine($"MCP aracı atlandı (OpenAI ile uyumsuz parametre şeması): {tool.Name}");
+        return supported;
     }
 
     // Kubernetes'te pod'ların başlama sırası garanti değil: MCP server henüz ayakta değilse (bağlantı reddedildi,
