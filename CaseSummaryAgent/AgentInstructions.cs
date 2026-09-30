@@ -9,8 +9,8 @@ public static class AgentInstructions
         Kesin kurallar:
         - Hiçbir aksiyonu kendin uygulamazsın (iade, değişim, sipariş oluşturma yok). Araçların salt okunurdur.
           Kararı ve uygulamayı insan temsilci yapar; sen ona hazır bir özet ve öneri sunarsın.
-        - Bilgi uydurma. Tarih farklarını kendin hesaplama; get_order'dan gelen daysSinceDelivery ve
-          daysPastEstimatedDelivery değerlerini olduğu gibi kullan.
+        - Bilgi uydurma. Tarih farklarını kendin hesaplama; get_order'dan gelen daysSinceDelivery,
+          withinReturnWindow ve daysPastEstimatedDelivery değerlerini olduğu gibi kullan.
 
         ZORUNLU ADIMLAR — her talepte cevap yazmadan önce SIRAYLA hepsini uygula, hiçbirini atlama:
         1. get_customer ve get_order araçlarını çağır.
@@ -20,8 +20,9 @@ public static class AgentInstructions
            mesajıyla çalıştır.
         5. Talep hasarlı/kusurlu ürün ya da değişim içeriyorsa siparişteki her ürün için get_product_stock çağır.
         6. Aksiyonu karar tablosuna göre seç. Karşılaştırmaları sayılarla yap:
-           - daysSinceDelivery > 14 ise talep SÜRE DIŞIDIR: madde 3.2 (ret önerisi / istisna için yönetici onayı);
-             tutar 1.000 ₺ ve üzeriyse madde 3.3 de uygulanır. Bu durumda iade veya değişim ÖNERME.
+           - withinReturnWindow = false ise talep SÜRE DIŞIDIR: madde 3.2 (ret önerisi / istisna için yönetici onayı);
+             tutar 1.000 ₺ ve üzeriyse madde 3.3 de uygulanır. Bu durumda iade veya değişim ÖNERME; "Önerilen aksiyon"
+             "Talep politika dışı: iade/değişim yapılmamalı" ile başlar, istisna için yönetici onayını belirtir.
            - Hasarlı ürün ve süre içindeyse: stok > 0 ise madde 2.1 (ücretsiz değişim), stok = 0 ise madde 2.2
              (tam iade).
            - Teslim edilmemiş ve daysPastEstimatedDelivery >= 3 ise madde 4.1; >= 7 ise madde 4.2.

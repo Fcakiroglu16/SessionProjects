@@ -1,0 +1,290 @@
+@page "/"
+@rendermode InteractiveServer
+@using System.Text
+@using CaseSummaryWeb.Services
+@using Microsoft.Extensions.AI
+@inject CaseSummaryAgentClient Agent
+@inject SupportDesk Desk
+@implements IDisposable
+
+<PageTitle>Destek Masası · Case Summary Agent</PageTitle>
+
+<div class="desk">
+    @* 1) Gelen talepler *@
+    <section class="panel inbox">
+        <h2>Gelen talepler</h2>
+        @foreach (var ticket in Desk.Tickets)        
+        {
+            var decision = Desk.DecisionFor(ticket.Id);
+            <button class="ticket @(ticket == _selected ? "selected" : "")" @onclick="() => Select(ticket)" disabled="@_running">
+                <div class="ticket-top">
+                    <span class="ticket-id">@ticket.Id</span>
+                    <span class="ticket-time">@ticket.ReceivedAt.ToString("HH:mm")</span>
+                </div>
+                <div class="ticket-subject">@ticket.Subject</div>
+                <div class="ticket-meta">@ticket.CustomerName · @ticket.Channel</div>
+                @if (decision is not null)
+                {
+                    <span class="badge decision-@decision.Type.ToString().ToLowerInvariant()">@DecisionLabel(decision.Type)</span>
+                }
+            </button>
+        }
+    </section>
+
+    @* 2) Talep + agent özeti + temsilci kararı *@
+    <section class="panel case">
+        @if (_selected is null)
+        {
+            <div class="empty">Soldan bir talep seçin.</div>
+        }
+        else
+        {
+            <div class="case-header">
+                <div>
+                    <h2>@_selected.Subject</h2>
+                    <div class="case-meta">@_selected.CustomerName (@_selected.CustomerId) · @_selected.OrderId · @_selected.Channel</div>
+                </div>
+                <button class="btn btn-primary" @onclick="AnalyzeAsync" disabled="@_running">
+                    @(_running ? "Agent çalışıyor…" : _answer.Length > 0 ? "Yeniden analiz et" : "Agent ile analiz et")
+                </button>
+            </div>
+
+            <blockquote class="customer-message">“@_selected.Message”</blockquote>
+
+            @if (_error is not null)
+            {
+                <div class="alert alert-danger">@_error</div>
+            }
+
+            @if (_answer.Length > 0)
+            {
+                var summary = CaseSummary.Parse(_answer.ToString());
+
+                @if (!summary.HasRecommendation)
+                {
+                    <div class="card-block streaming">@((MarkupString)CaseSummary.ToHtml(_answer.ToString()))</div>
+                }
+                else
+                {
+                    <div class="recommendation @(summary.IsHighPriority ? "high" : "")">
+                        <div class="rec-label">
+                            Agent önerisi
+                            <span class="badge priority @(summary.IsHighPriority ? "high" : "normal")">
+                                @(summary.IsHighPriority ? "Yüksek öncelik" : "Normal öncelik")
+                            </span>
+                        </div>
+                        <div class="rec-action">@((MarkupString)CaseSummary.ToHtml(summary.RecommendedAction))</div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="card-block">
+                            <h3>Özet</h3>
+                            @((MarkupString)CaseSummary.ToHtml(summary.Summary))
+                        </div>
+                        <div class="card-block">
+                            <h3>Gerekçe</h3>
+                            @((MarkupString)CaseSummary.ToHtml(summary.Rationale))
+                        </div>
+                        <div class="card-block">
+                            <h3>Öncelik</h3>
+                            @((MarkupString)CaseSummary.ToHtml(summary.Priority))
+                        </div>
+                        <div class="card-block">
+                            <h3>Belirsizlikler</h3>
+                            @((MarkupString)CaseSummary.ToHtml(summary.Uncertainties))
+                        </div>
+                    </div>
+
+                    <details class="card-block">
+                        <summary>Kontrol edilen bilgiler</summary>
+                        @((MarkupString)CaseSummary.ToHtml(summary.CheckedFacts))
+                    </details>
+
+                    @if (!_running && !_decided)
+                    {
+                        <div class="decision">
+                            <h3>Temsilci kararı</h3>
+                            <p class="hint">Agent hiçbir işlem yapmadı. Öneriyi uygulamak, değiştirmek ya da reddetmek sizin kararınız.</p>
+
+                            @if (_editing)
+                            {
+                                <textarea class="form-control" rows="2" @bind="_editedAction" placeholder="Uygulanacak aksiyon"></textarea>
+                            }
+                            <textarea class="form-control" rows="2" @bind="_note" placeholder="Not (isteğe bağlı)"></textarea>
+
+                            <div class="decision-buttons">
+                                <button class="btn btn-success" @onclick="() => Decide(DecisionType.Approved, summary)">✓ Onayla</button>
+                                @if (_editing)
+                                {
+                                    <button class="btn btn-warning" @onclick="() => Decide(DecisionType.Edited, summary)" disabled="@string.IsNullOrWhiteSpace(_editedAction)">Düzenlenmiş haliyle kaydet</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-outline-warning" @onclick="() => StartEdit(summary)">✎ Düzenle</button>
+                                }
+                                <button class="btn btn-outline-danger" @onclick="() => Decide(DecisionType.Rejected, summary)">✕ Reddet</button>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+
+            @if (Desk.DecisionFor(_selected.Id) is { } last)
+            {
+                <div class="decided decision-@last.Type.ToString().ToLowerInvariant()">
+                    <strong>@DecisionLabel(last.Type)</strong> · @last.DecidedAt.ToString("HH:mm:ss")
+                    <div>Uygulanacak aksiyon: @last.FinalAction</div>
+                    @if (!string.IsNullOrWhiteSpace(last.Note))
+                    {
+                        <div>Not: @last.Note</div>
+                    }
+                </div>
+            }
+        }
+    </section>
+
+    @* 3) Agent'ın canlı çalışma akışı (AG-UI tool olayları) *@
+    <section class="panel activity">
+        <h2>Agent ne yaptı?</h2>
+        @if (_activities.Count == 0)
+        {
+            <div class="empty">Analiz başlatıldığında agent'ın çağırdığı servisler ve skill'ler burada canlı görünür.</div>
+        }
+        @foreach (var activity in _activities)
+        {
+            <div class="step @activity.Kind @(activity.Completed ? "done" : "pending")">
+                <div class="step-icon">@activity.Icon</div>
+                <div class="step-body">
+                    <div class="step-title">@activity.Title</div>
+                    <div class="step-source">@activity.Source</div>
+                    @foreach (var fact in activity.Facts)
+                    {
+                        <div class="step-fact">@fact</div>
+                    }
+                </div>
+                <div class="step-state">@(activity.Completed ? "✓" : "…")</div>
+            </div>
+        }
+        @if (_running && _answer.Length > 0)
+        {
+            <div class="step writing"><div class="step-icon">✍️</div><div class="step-body"><div class="step-title">Özet yazılıyor…</div></div></div>
+        }
+        @if (!_running && _elapsed is not null)
+        {
+            <div class="elapsed">@_activities.Count adım · @_elapsed.Value.TotalSeconds.ToString("0.0") sn</div>
+        }
+    </section>
+</div>
+
+@code {
+    private SupportTicket? _selected;
+    private readonly List<ToolActivity> _activities = [];
+    private readonly StringBuilder _answer = new();
+    private bool _running;
+    private string? _error;
+    private TimeSpan? _elapsed;
+    private bool _editing;
+    private bool _decided;
+    private string? _editedAction;
+    private string? _note;
+    private CancellationTokenSource? _cts;
+
+    private void Select(SupportTicket ticket)
+    {
+        _selected = ticket;
+        _activities.Clear();
+        _answer.Clear();
+        _error = null;
+        _elapsed = null;
+        _decided = false;
+        ResetDecisionForm();
+    }
+
+    private async Task AnalyzeAsync()
+    {
+        if (_selected is null) return;
+
+        var ticket = _selected;
+        Select(ticket);
+        _running = true;
+        _cts = new CancellationTokenSource();
+        var started = DateTime.UtcNow;
+
+        try
+        {
+            await foreach (var evt in Agent.RunAsync([new ChatMessage(ChatRole.User, ticket.ToAgentInput())], _cts.Token))
+            {
+                switch (evt)
+                {
+                    case ToolCallStarted s when _activities.All(a => a.CallId != s.CallId):
+                        _activities.Add(new ToolActivity(s.CallId, s.Name, s.Arguments));
+                        break;
+                    case ToolCallCompleted c:
+                        _activities.FirstOrDefault(a => a.CallId == c.CallId)?.Complete(c.Result);
+                        break;
+                    case TextDelta t:
+                        _answer.Append(t.Text);
+                        break;
+                }
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            _error = $"Agent'a ulaşılamadı: {ex.Message}";
+        }
+        finally
+        {
+            _running = false;
+            _elapsed = DateTime.UtcNow - started;
+        }
+    }
+
+    private void StartEdit(CaseSummary summary)
+    {
+        _editing = true;
+        _editedAction = PlainText(summary.RecommendedAction);
+    }
+
+    private void Decide(DecisionType type, CaseSummary summary)
+    {
+        if (_selected is null) return;
+
+        var recommendation = PlainText(summary.RecommendedAction);
+        var finalAction = type switch
+        {
+            DecisionType.Approved => recommendation,
+            DecisionType.Edited => _editedAction!.Trim(),
+            _ => "Uygulanmayacak"
+        };
+        Desk.Record(new RepresentativeDecision(_selected.Id, type, recommendation, finalAction, _note, DateTime.Now));
+        _decided = true;
+        ResetDecisionForm();
+    }
+
+    private void ResetDecisionForm()
+    {
+        _editing = false;
+        _editedAction = null;
+        _note = null;
+    }
+
+    private static string PlainText(string markdown) =>
+        markdown.Replace("**", "").Replace("\n", " ").Trim();
+
+    private static string DecisionLabel(DecisionType type) => type switch
+    {
+        DecisionType.Approved => "Onaylandı",
+        DecisionType.Edited => "Düzenlendi",
+        _ => "Reddedildi"
+    };
+
+    public void Dispose()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+    }
+}

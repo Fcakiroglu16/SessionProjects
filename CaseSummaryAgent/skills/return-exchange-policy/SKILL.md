@@ -9,7 +9,7 @@ Bu beceri, müşteri talebi için **önerilecek aksiyonu** belirlemek içindir. 
 temsilciye ne yapması gerektiğini ve hangi politika maddesine dayandığını yazarsın.
 
 ## Adımlar
-1. `get_order` ile siparişi al. `daysSinceDelivery` ve `daysPastEstimatedDelivery` alanlarını kullan;
+1. `get_order` ile siparişi al. `daysSinceDelivery`, `withinReturnWindow` ve `daysPastEstimatedDelivery` alanlarını kullan;
    tarih farkını kendin hesaplama.
 2. Talep türünü belirle: bilgi talebi, hasarlı/kusurlu ürün, cayma (beğenmedim), kargo gecikmesi.
 3. Aşağıdaki karar tablosunu uygula. Madde numaralarını gerekçede belirt.

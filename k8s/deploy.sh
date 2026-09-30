@@ -93,10 +93,10 @@ kc apply -f "$ROOT/k8s/agents/"
 
 echo "==> 5/5 Rollout"
 # Aynı :latest tag'iyle yeniden build edilen image'ların alınması için pod'ları yenile
-kc -n sessionprojects rollout restart deployment/microservice1-api deployment/microservice2-api >/dev/null
+kc -n sessionprojects rollout restart deployment/microservice1-api deployment/microservice2-api deployment/case-summary-web >/dev/null
 kc -n sessionprojects-agents rollout restart deployment/observability-agent deployment/kubernetes-agent \
   deployment/sre-advisor-agent deployment/case-summary-agent >/dev/null
-for d in rabbitmq microservice2-api microservice1-api; do
+for d in rabbitmq microservice2-api microservice1-api case-summary-web; do
   kc -n sessionprojects rollout status "deployment/$d" --timeout=180s
 done
 for d in signoz-mcp grafana-mcp prometheus-mcp kubernetes-mcp observability-agent kubernetes-agent sre-advisor-agent \
@@ -107,6 +107,7 @@ done
 echo
 kc -n sessionprojects-agents get svc sre-advisor-agent
 echo
+echo "Destek UI:   http://localhost:8092  (CaseSummaryAgent, AG-UI)"
 echo "CaseSummary: curl -s http://localhost:8091/responses -H 'Content-Type: application/json' -d '{\"input\":\"Müşteri: C-1002, Sipariş: ORD-1002. Mesaj: Kalem kırık geldi.\"}'"
 echo "SreAdvisor:  curl -s http://localhost:8090/responses -H 'Content-Type: application/json' -d '{\"input\":\"Sistemde sorun var mı?\"}'"
 echo "Grafana:     kubectl --context $CONTEXT -n observability port-forward svc/kube-prometheus-stack-grafana 3000:80"

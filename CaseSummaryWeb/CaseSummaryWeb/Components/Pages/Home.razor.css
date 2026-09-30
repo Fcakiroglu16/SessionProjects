@@ -1,0 +1,299 @@
+.desk {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr) 340px;
+    gap: 1rem;
+    align-items: start;
+}
+
+.panel {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.panel h2 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin-bottom: 0.75rem;
+}
+
+.empty {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+/* Gelen talepler */
+.ticket {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.ticket:hover:not(:disabled) {
+    border-color: #38bdf8;
+}
+
+.ticket.selected {
+    background: #e0f2fe;
+    border-color: #0284c7;
+}
+
+.ticket-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.ticket-id {
+    font-weight: 600;
+}
+
+.ticket-subject {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.ticket-meta {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+/* Talep ve özet */
+.case-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.case-header h2 {
+    font-size: 1.3rem;
+    text-transform: none;
+    letter-spacing: 0;
+    color: #0f172a;
+    margin: 0;
+}
+
+.case-meta {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.customer-message {
+    margin: 1rem 0;
+    padding: 0.75rem 1rem;
+    background: #f1f5f9;
+    border-left: 4px solid #94a3b8;
+    border-radius: 6px;
+    font-style: italic;
+}
+
+.recommendation {
+    border: 2px solid #0284c7;
+    background: #f0f9ff;
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.recommendation.high {
+    border-color: #dc2626;
+    background: #fef2f2;
+}
+
+.rec-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #475569;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.rec-action {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-top: 0.35rem;
+}
+
+.rec-action ::deep p:last-child,
+.card-block ::deep p:last-child {
+    margin-bottom: 0;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.card-block {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.75rem 0.9rem;
+    font-size: 0.9rem;
+}
+
+.card-block h3,
+.decision h3 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.card-block summary {
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    margin-top: 0.35rem;
+}
+
+.priority.high {
+    background: #dc2626;
+    color: #fff;
+}
+
+.priority.normal {
+    background: #0284c7;
+    color: #fff;
+}
+
+.decision-approved {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.decision-edited {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.decision-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Temsilci kararı */
+.decision {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px dashed #94a3b8;
+    border-radius: 12px;
+    background: #f8fafc;
+}
+
+.decision .hint {
+    font-size: 0.85rem;
+    color: #475569;
+}
+
+.decision textarea {
+    margin-bottom: 0.5rem;
+}
+
+.decision-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.decided {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+
+/* Agent akışı */
+.step {
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.55rem 0.6rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 0.5rem;
+    animation: appear 0.25s ease-out;
+}
+
+.step.tool {
+    border-left: 4px solid #0284c7;
+}
+
+.step.skill {
+    border-left: 4px solid #7c3aed;
+}
+
+.step.pending {
+    opacity: 0.7;
+}
+
+.step.writing {
+    border-left: 4px solid #16a34a;
+}
+
+.step-icon {
+    font-size: 1.2rem;
+}
+
+.step-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.step-title {
+    font-weight: 600;
+    font-size: 0.88rem;
+    overflow-wrap: anywhere;
+}
+
+.step-source {
+    font-size: 0.72rem;
+    color: #64748b;
+}
+
+.step-fact {
+    font-size: 0.8rem;
+    color: #0f172a;
+}
+
+.step-state {
+    color: #16a34a;
+    font-weight: 700;
+}
+
+.elapsed {
+    font-size: 0.8rem;
+    color: #64748b;
+    text-align: right;
+}
+
+@keyframes appear {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 1100px) {
+    .desk {
+        grid-template-columns: 1fr;
+    }
+}

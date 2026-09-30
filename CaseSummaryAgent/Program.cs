@@ -4,7 +4,9 @@ using CaseSummaryAgent.SkillDefinitions;
 using CaseSummaryAgent.Tools;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Foundry.Hosting;
+using Microsoft.Agents.AI.Hosting.AGUI.AspNetCore;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using OpenAI;
 
 var apiKey = Environment.GetEnvironmentVariable("OPEN_AI_KEY");
@@ -61,6 +63,11 @@ var agent = new ChatClientAgent(chatClient, new ChatClientAgentOptions
 var builder = AgentHost.CreateBuilder(args);
 builder.Services.AddFoundryResponses(agent);
 builder.RegisterProtocol("responses", endpoints => endpoints.MapFoundryResponses());
+
+// AG-UI: aynı agent'ı UI'lara (Blazor, CopilotKit) açar. Metin ve tool çağrıları olay akışı (SSE) olarak gider,
+// böylece UI agent'ın hangi servise ne sorduğunu canlı gösterebilir.
+builder.Services.AddAGUIServer();
+builder.RegisterProtocol("agui", endpoints => endpoints.MapAGUIServer("/ag-ui", agent));
 
 var app = builder.Build();
 app.Run();

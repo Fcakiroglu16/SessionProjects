@@ -1,0 +1,71 @@
+# Destek masası UI'ı (Blazor Server). CaseSummaryAgent'a AG-UI ile bağlanır; agent'ın tool/skill çağrılarını canlı
+# gösterir, kararı temsilciye bırakır. Dışarıya açık: http://localhost:8092
+# Blazor Server bağlantısı pod'a bağlı (SignalR) olduğu için tek replika; ölçeklenecekse sticky session gerekir.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: case-summary-web
+  namespace: sessionprojects
+  labels:
+    app: case-summary-web
+    app.kubernetes.io/part-of: sessionprojects
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: case-summary-web
+  template:
+    metadata:
+      labels:
+        app: case-summary-web
+        app.kubernetes.io/part-of: sessionprojects
+    spec:
+      containers:
+        - name: case-summary-web
+          image: casesummary.web:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            # Talep saatleri yerel saatle gösterilsin (container varsayılanı UTC)
+            - name: TZ
+              value: Europe/Istanbul
+            - name: CaseSummaryAgent__Endpoint
+              value: http://case-summary-agent.sessionprojects-agents.svc.cluster.local:8091/ag-ui
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://otel-collector.observability.svc.cluster.local:4317
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: grpc
+            - name: OTEL_SERVICE_NAME
+              value: case-summary-web
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 384Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: case-summary-web
+  namespace: sessionprojects
+  labels:
+    app: case-summary-web
+spec:
+  type: LoadBalancer
+  selector:
+    app: case-summary-web
+  ports:
+    - name: http
+      port: 8092
+      targetPort: http

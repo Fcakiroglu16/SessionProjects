@@ -25,6 +25,7 @@ public class SupportDataToolsTests
         var shipment = result.GetProperty("shipment");
         Assert.True(shipment.GetProperty("delivered").GetBoolean());
         Assert.Equal(3, shipment.GetProperty("daysSinceDelivery").GetInt32());
+        Assert.True(shipment.GetProperty("withinReturnWindow").GetBoolean());
         Assert.Equal(0, shipment.GetProperty("daysPastEstimatedDelivery").GetInt32());
     }
 
@@ -41,6 +42,20 @@ public class SupportDataToolsTests
         Assert.False(shipment.GetProperty("delivered").GetBoolean());
         Assert.False(shipment.TryGetProperty("daysSinceDelivery", out var days) && days.ValueKind != JsonValueKind.Null);
         Assert.Equal(6, shipment.GetProperty("daysPastEstimatedDelivery").GetInt32());
+    }
+
+    [Fact]
+    public async Task GetOrder_FlagsDeliveryOlderThan14DaysAsOutsideReturnWindow()
+    {
+        var now = DateTime.UtcNow;
+        var order = new OrderDto("ORD-4", "C-4", now.AddDays(-25), [new(5, "Dolma Kalem", 1, 2000m)], 2000m,
+            new ShipmentDto("Delivered", "Aras Kargo", "AR-4", now.AddDays(-23), now.AddDays(-20), null));
+
+        var result = await InvokeAsync(CreateTools(("/api/orders/ORD-4", order)), "get_order", new() { ["orderId"] = "ORD-4" });
+
+        var shipment = result.GetProperty("shipment");
+        Assert.Equal(20, shipment.GetProperty("daysSinceDelivery").GetInt32());
+        Assert.False(shipment.GetProperty("withinReturnWindow").GetBoolean());
     }
 
     [Fact]

@@ -17,8 +17,12 @@ public sealed class SupportDataTools(HttpClient orderService, HttpClient product
         yield return AIFunctionFactory.Create(GetProductStockAsync, new AIFunctionFactoryOptions { Name = "get_product_stock" });
     }
 
+    // İade/değişim süresi (politika madde 3.1 / 3.2). Karşılaştırma modelde değil burada yapılır.
+    private const int ReturnWindowDays = 14;
+
     [Description("Siparişi, kalemlerini, tutarını ve kargo durumunu getirir. Teslimattan bu yana geçen gün " +
-                 "(daysSinceDelivery) ve tahmini teslimden bu yana geçen gün (daysPastEstimatedDelivery) hesaplanmış gelir.")]
+                 "(daysSinceDelivery), 14 günlük iade süresi içinde olup olmadığı (withinReturnWindow) ve tahmini " +
+                 "teslimden bu yana geçen gün (daysPastEstimatedDelivery) hesaplanmış gelir.")]
     private async Task<object> GetOrderAsync(
         [Description("Sipariş numarası, ör. ORD-1002")] string orderId,
         CancellationToken cancellationToken)
@@ -29,6 +33,7 @@ public sealed class SupportDataTools(HttpClient orderService, HttpClient product
 
         var now = DateTime.UtcNow;
         var shipment = order.Shipment;
+        int? daysSinceDelivery = shipment.DeliveredAt is { } deliveredAt ? (int)(now - deliveredAt).TotalDays : null;
         return new
         {
             found = true,
@@ -47,7 +52,9 @@ public sealed class SupportDataTools(HttpClient orderService, HttpClient product
                 shipment.EstimatedDeliveryAt,
                 // null alanlar serileştirmede atlandığı için teslim durumu ayrıca açıkça verilir
                 delivered = shipment.DeliveredAt is not null,
-                daysSinceDelivery = shipment.DeliveredAt is { } delivered ? (int)(now - delivered).TotalDays : (int?)null,
+                daysSinceDelivery,
+                // teslim edilmemiş siparişte süre henüz başlamamıştır
+                withinReturnWindow = daysSinceDelivery is null or <= ReturnWindowDays,
                 daysPastEstimatedDelivery = shipment.DeliveredAt is null && shipment.EstimatedDeliveryAt is { } eta && eta < now
                     ? (int)(now - eta).TotalDays
                     : 0

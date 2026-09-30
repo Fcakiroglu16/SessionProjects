@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif">
+<defs><marker id="arr-475569" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker><marker id="arr-1d4ed8" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d4ed8"/></marker><marker id="arr-7c3aed" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/></marker><marker id="arr-0f766e" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0f766e"/></marker><marker id="arr-374151" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#374151"/></marker><marker id="arr-b91c1c" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b91c1c"/></marker><marker id="arr-94a3b8" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/></marker><marker id="arr-b45309" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker><marker id="arr-4f46e5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4f46e5"/></marker><marker id="arr-15803d" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15803d"/></marker></defs>
+<rect width="1920" height="1080" fill="white"/>
+<text x="50" y="74" font-size="42" font-weight="800" fill="#1f2937">Case Summary Agent — Decision Support, Not Automation</text>
+<text x="50" y="112" font-size="21" fill="#6b7280">The agent reads the request, gathers facts with read-only tools, applies policy via skills, and recommends an action. A human decides.</text>
+<text x="550" y="165" font-size="15" font-weight="700" fill="#6b7280" text-anchor="middle" letter-spacing="0.5">DECISION-SUPPORT AGENT</text>
+<text x="1315" y="165" font-size="15" font-weight="700" fill="#6b7280" text-anchor="middle" letter-spacing="0.5">MICROSERVICES</text>
+<text x="1710" y="165" font-size="15" font-weight="700" fill="#6b7280" text-anchor="middle" letter-spacing="0.5">WHY IT'S RELIABLE</text>
+<text x="925" y="505" font-size="15" font-weight="700" fill="#6b7280" text-anchor="middle" letter-spacing="0.5">AGENT SKILLS</text>
+<text x="1315" y="505" font-size="15" font-weight="700" fill="#6b7280" text-anchor="middle" letter-spacing="0.5">SKILL CONTENT</text>
+<text x="1710" y="505" font-size="15" font-weight="700" fill="#6b7280" text-anchor="middle" letter-spacing="0.5">PROGRESSIVE DISCLOSURE</text>
+<rect x="40" y="300" width="260" height="210" rx="14" fill="#f1f5f9" stroke="#475569" stroke-width="2.5"/>
+<rect x="40" y="300" width="8" height="210" rx="4" fill="#475569"/>
+<text x="66" y="378.5" font-size="23" font-weight="700" fill="#1f2937">Support Request</text>
+<text x="66" y="402.5" font-size="17" fill="#6b7280">Customer message</text>
+<text x="66" y="426.5" font-size="17" fill="#6b7280">+ customer &amp; order ID</text>
+<text x="66" y="450.5" font-size="17" fill="#6b7280">POST /responses :8091</text>
+<rect x="400" y="285" width="300" height="245" rx="14" fill="#eef2ff" stroke="#4f46e5" stroke-width="2.5"/>
+<rect x="400" y="285" width="8" height="245" rx="4" fill="#4f46e5"/>
+<text x="426" y="370.0" font-size="25" font-weight="700" fill="#1f2937">Case Summary Agent</text>
+<text x="426" y="394.0" font-size="17" fill="#6b7280">Microsoft Agent Framework</text>
+<text x="426" y="418.0" font-size="17" fill="#6b7280">gpt-4o-mini</text>
+<text x="426" y="442.0" font-size="17" fill="#6b7280">7-step mandatory checklist</text>
+<text x="426" y="466.0" font-size="17" fill="#6b7280">No write tools</text>
+<text x="488" y="558" font-size="13" font-weight="700" fill="#b91c1c" text-anchor="start" letter-spacing="0.5">Stock unchanged in every test run</text>
+<rect x="780" y="190" width="290" height="72" rx="14" fill="#ecfdf5" stroke="#0f766e" stroke-width="2.5"/>
+<rect x="780" y="190" width="8" height="72" rx="4" fill="#0f766e"/>
+<text x="806" y="223.0" font-size="20" font-weight="700" fill="#1f2937">get_customer</text>
+<text x="806" y="245.0" font-size="15" fill="#6b7280">profile · segment · complaints</text>
+<rect x="780" y="280" width="290" height="72" rx="14" fill="#ecfdf5" stroke="#0f766e" stroke-width="2.5"/>
+<rect x="780" y="280" width="8" height="72" rx="4" fill="#0f766e"/>
+<text x="806" y="313.0" font-size="20" font-weight="700" fill="#1f2937">get_order</text>
+<text x="806" y="335.0" font-size="15" fill="#6b7280">items · shipment · days</text>
+<rect x="780" y="370" width="290" height="72" rx="14" fill="#ecfdf5" stroke="#0f766e" stroke-width="2.5"/>
+<rect x="780" y="370" width="8" height="72" rx="4" fill="#0f766e"/>
+<text x="806" y="403.0" font-size="20" font-weight="700" fill="#1f2937">get_product_stock</text>
+<text x="806" y="425.0" font-size="15" fill="#6b7280">current stock per item</text>
+<rect x="1150" y="190" width="330" height="162" rx="14" fill="#f9fafb" stroke="#374151" stroke-width="2.5"/>
+<rect x="1150" y="190" width="8" height="162" rx="4" fill="#374151"/>
+<text x="1176" y="256.5" font-size="21" font-weight="700" fill="#1f2937">Order Service</text>
+<text x="1176" y="279.5" font-size="16" fill="#6b7280">microservice1</text>
+<text x="1176" y="302.5" font-size="16" fill="#6b7280">Customers · Orders · Shipments</text>
+<rect x="1150" y="370" width="330" height="72" rx="14" fill="#f9fafb" stroke="#374151" stroke-width="2.5"/>
+<rect x="1150" y="370" width="8" height="72" rx="4" fill="#374151"/>
+<text x="1176" y="403.0" font-size="21" font-weight="700" fill="#1f2937">Product Service</text>
+<text x="1176" y="426.0" font-size="16" fill="#6b7280">microservice2 · Products · Stock</text>
+<rect x="1540" y="190" width="340" height="252" rx="14" fill="#fffbeb" stroke="#b45309" stroke-width="2.5"/>
+<rect x="1540" y="190" width="8" height="252" rx="4" fill="#b45309"/>
+<text x="1566" y="266.5" font-size="20" font-weight="700" fill="#1f2937">Facts are computed in code</text>
+<text x="1566" y="289.5" font-size="16" fill="#6b7280">daysSinceDelivery</text>
+<text x="1566" y="312.5" font-size="16" fill="#6b7280">daysPastEstimatedDelivery</text>
+<text x="1566" y="335.5" font-size="16" fill="#6b7280">inStock</text>
+<text x="1566" y="358.5" font-size="16" fill="#6b7280">The LLM interprets,</text>
+<text x="1566" y="381.5" font-size="16" fill="#6b7280">it never does the math</text>
+<rect x="780" y="530" width="290" height="105" rx="14" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2.5"/>
+<rect x="780" y="530" width="8" height="105" rx="4" fill="#7c3aed"/>
+<text x="806" y="556.0" font-size="12.5" font-weight="800" fill="#7c3aed" letter-spacing="1">FILE SKILL</text>
+<text x="806" y="579.0" font-size="19" font-weight="700" fill="#1f2937">return-exchange-policy</text>
+<text x="806" y="601.0" font-size="15" fill="#6b7280">load_skill</text>
+<text x="806" y="623.0" font-size="15" fill="#6b7280">read_skill_resource</text>
+<rect x="780" y="655" width="290" height="105" rx="14" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2.5"/>
+<rect x="780" y="655" width="8" height="105" rx="4" fill="#7c3aed"/>
+<text x="806" y="681.0" font-size="12.5" font-weight="800" fill="#7c3aed" letter-spacing="1">INLINE C# SKILL</text>
+<text x="806" y="704.0" font-size="19" font-weight="700" fill="#1f2937">escalation-rules</text>
+<text x="806" y="726.0" font-size="15" fill="#6b7280">load_skill</text>
+<text x="806" y="748.0" font-size="15" fill="#6b7280">run_skill_script</text>
+<rect x="1150" y="530" width="330" height="105" rx="14" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2.5"/>
+<rect x="1150" y="530" width="8" height="105" rx="4" fill="#7c3aed"/>
+<text x="1176" y="567.5" font-size="18" font-weight="700" fill="#1f2937">SKILL.md + references/policy.md</text>
+<text x="1176" y="589.5" font-size="15" fill="#6b7280">Decision table · clauses 1.1–4.2</text>
+<text x="1176" y="611.5" font-size="15" fill="#6b7280">Business-owned, no code change</text>
+<rect x="1150" y="655" width="330" height="105" rx="14" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2.5"/>
+<rect x="1150" y="655" width="8" height="105" rx="4" fill="#7c3aed"/>
+<text x="1176" y="692.5" font-size="18" font-weight="700" fill="#1f2937">Instructions · resource · script</text>
+<text x="1176" y="714.5" font-size="15" fill="#6b7280">sensitive-phrases (resource)</text>
+<text x="1176" y="736.5" font-size="15" fill="#6b7280">detect_sensitive_content (C#)</text>
+<rect x="1540" y="530" width="340" height="230" rx="14" fill="white" stroke="#7c3aed" stroke-width="2.5"/>
+<rect x="1540" y="530" width="8" height="230" rx="4" fill="#7c3aed"/>
+<text x="1566" y="607.0" font-size="20" font-weight="700" fill="#1f2937">Loaded only when needed</text>
+<text x="1566" y="630.0" font-size="16" fill="#6b7280">1  Advertise: names in prompt</text>
+<text x="1566" y="653.0" font-size="16" fill="#6b7280">2  Load: full skill body</text>
+<text x="1566" y="676.0" font-size="16" fill="#6b7280">3  Read: policy references</text>
+<text x="1566" y="699.0" font-size="16" fill="#6b7280">4  Run: deterministic script</text>
+<line x1="300" y1="405" x2="398" y2="405" stroke="#475569" stroke-width="3" marker-end="url(#arr-475569)"/>
+<rect x="281.3" y="355" width="135.39999999999998" height="34" rx="17" fill="white" stroke="#475569" stroke-width="2"/>
+<circle cx="305.3" cy="372" r="11" fill="#475569"/><text x="305.3" y="377.5" font-size="15" font-weight="700" fill="white" text-anchor="middle">1</text>
+<text x="324.3" y="378" font-size="17" font-weight="700" fill="#475569">Request</text>
+<path d="M700,380 C742,380 742,226 778,226" fill="none" stroke="#0f766e" stroke-width="3" marker-end="url(#arr-0f766e)"/>
+<path d="M700,380 C742,380 742,316 778,316" fill="none" stroke="#0f766e" stroke-width="3" marker-end="url(#arr-0f766e)"/>
+<path d="M700,380 C742,380 742,406 778,406" fill="none" stroke="#0f766e" stroke-width="3" marker-end="url(#arr-0f766e)"/>
+<rect x="796.3" y="148" width="257.4" height="34" rx="17" fill="white" stroke="#0f766e" stroke-width="2"/>
+<circle cx="820.3" cy="165" r="11" fill="#0f766e"/><text x="820.3" y="170.5" font-size="15" font-weight="700" fill="white" text-anchor="middle">2</text>
+<text x="839.3" y="171" font-size="17" font-weight="700" fill="#0f766e">Tools · read-only</text>
+<path d="M700,470 C742,470 742,582 778,582" fill="none" stroke="#7c3aed" stroke-width="3" marker-end="url(#arr-7c3aed)"/>
+<path d="M700,470 C742,470 742,707 778,707" fill="none" stroke="#7c3aed" stroke-width="3" marker-end="url(#arr-7c3aed)"/>
+<rect x="574.4" y="633" width="123.19999999999999" height="34" rx="17" fill="white" stroke="#7c3aed" stroke-width="2"/>
+<circle cx="598.4" cy="650" r="11" fill="#7c3aed"/><text x="598.4" y="655.5" font-size="15" font-weight="700" fill="white" text-anchor="middle">3</text>
+<text x="617.4" y="656" font-size="17" font-weight="700" fill="#7c3aed">Skills</text>
+<line x1="1070" y1="226" x2="1148" y2="240" stroke="#374151" stroke-width="3" marker-end="url(#arr-374151)"/>
+<line x1="1070" y1="316" x2="1148" y2="300" stroke="#374151" stroke-width="3" marker-end="url(#arr-374151)"/>
+<line x1="1070" y1="406" x2="1148" y2="406" stroke="#374151" stroke-width="3" marker-end="url(#arr-374151)"/>
+<line x1="1070" y1="582" x2="1148" y2="582" stroke="#7c3aed" stroke-width="3" marker-end="url(#arr-7c3aed)"/>
+<line x1="1070" y1="707" x2="1148" y2="707" stroke="#7c3aed" stroke-width="3" marker-end="url(#arr-7c3aed)"/>
+<rect x="40" y="800" width="1840" height="255" rx="22" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+<text x="60" y="830" font-size="15" font-weight="700" fill="#64748b" text-anchor="start" letter-spacing="0.5">OUTPUT — the human stays in control</text>
+<path d="M470,530 L470,852" fill="none" stroke="#1d4ed8" stroke-width="3" marker-end="url(#arr-1d4ed8)"/>
+<rect x="402.3" y="743" width="135.39999999999998" height="34" rx="17" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+<circle cx="426.3" cy="760" r="11" fill="#1d4ed8"/><text x="426.3" y="765.5" font-size="15" font-weight="700" fill="white" text-anchor="middle">4</text>
+<text x="445.3" y="766" font-size="17" font-weight="700" fill="#1d4ed8">Summary</text>
+<rect x="70" y="852" width="840" height="180" rx="16" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2.5"/>
+<text x="96" y="890" font-size="22" font-weight="700" fill="#1f2937">Structured case summary</text>
+<rect x="96" y="910" width="93.2" height="30" rx="15" fill="white" stroke="#1d4ed8" stroke-width="1.5"/>
+<text x="109" y="930" font-size="15" font-weight="600" fill="#1d4ed8">Summary</text>
+<rect x="201.2" y="910" width="150.8" height="30" rx="15" fill="white" stroke="#1d4ed8" stroke-width="1.5"/>
+<text x="214.2" y="930" font-size="15" font-weight="600" fill="#1d4ed8">Checked facts</text>
+<rect x="364.0" y="910" width="198.79999999999998" height="30" rx="15" fill="white" stroke="#1d4ed8" stroke-width="1.5"/>
+<text x="377.0" y="930" font-size="15" font-weight="600" fill="#1d4ed8">Recommended action</text>
+<rect x="574.8" y="910" width="266.0" height="30" rx="15" fill="white" stroke="#1d4ed8" stroke-width="1.5"/>
+<text x="587.8" y="930" font-size="15" font-weight="600" fill="#1d4ed8">Rationale + policy clause</text>
+<rect x="96" y="952" width="102.8" height="30" rx="15" fill="white" stroke="#1d4ed8" stroke-width="1.5"/>
+<text x="109" y="972" font-size="15" font-weight="600" fill="#1d4ed8">Priority</text>
+<rect x="210.8" y="952" width="150.8" height="30" rx="15" fill="white" stroke="#1d4ed8" stroke-width="1.5"/>
+<text x="223.8" y="972" font-size="15" font-weight="600" fill="#1d4ed8">Uncertainties</text>
+<text x="96" y="1012" font-size="15" fill="#6b7280">e.g. Damaged item, stock 0  →  Full refund (clause 2.2) · Priority: Normal</text>
+<line x1="910" y1="942" x2="1048" y2="942" stroke="#15803d" stroke-width="3" marker-end="url(#arr-15803d)"/>
+<rect x="917.4" y="925" width="123.19999999999999" height="34" rx="17" fill="white" stroke="#15803d" stroke-width="2"/>
+<circle cx="941.4" cy="942" r="11" fill="#15803d"/><text x="941.4" y="947.5" font-size="15" font-weight="700" fill="white" text-anchor="middle">5</text>
+<text x="960.4" y="948" font-size="17" font-weight="700" fill="#15803d">Decide</text>
+<rect x="1050" y="868" width="370" height="150" rx="14" fill="#f0fdf4" stroke="#15803d" stroke-width="2.5"/>
+<rect x="1050" y="868" width="8" height="150" rx="4" fill="#15803d"/>
+<text x="1076" y="928.5" font-size="21" font-weight="700" fill="#1f2937">Support Representative</text>
+<text x="1076" y="951.5" font-size="16" fill="#6b7280">Reviews the recommendation</text>
+<text x="1076" y="974.5" font-size="16" fill="#6b7280">Approves or overrides it</text>
+<line x1="1420" y1="942" x2="1488" y2="942" stroke="#15803d" stroke-width="3" marker-end="url(#arr-15803d)"/>
+<rect x="1490" y="868" width="370" height="150" rx="14" fill="#f9fafb" stroke="#374151" stroke-width="2.5"/>
+<rect x="1490" y="868" width="8" height="150" rx="4" fill="#374151"/>
+<text x="1516" y="928.5" font-size="21" font-weight="700" fill="#1f2937">Existing services act</text>
+<text x="1516" y="951.5" font-size="16" fill="#6b7280">Exchange · refund</text>
+<text x="1516" y="974.5" font-size="16" fill="#6b7280">Carrier inquiry · escalation</text>
+</svg>

@@ -21,4 +21,6 @@
   <Folder Name="/Solution Items/">
     <File Path="compose.yaml" />
   </Folder>
+  <Project Path="CaseSummaryWeb/CaseSummaryWeb.Client/CaseSummaryWeb.Client.csproj" />
+  <Project Path="CaseSummaryWeb/CaseSummaryWeb/CaseSummaryWeb.csproj" />
 </Solution>
